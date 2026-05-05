@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using PRReviewBot.Api.Models;
 using PRReviewBot.Core.Orchestration;
+using PRReviewBot.Core.Services;
 
 namespace PRReviewBot.Api.Controllers;
 
@@ -11,15 +12,18 @@ namespace PRReviewBot.Api.Controllers;
 public class WebhookController : ControllerBase
 {
     private readonly ReviewOrchestrator _orchestrator;
+    private readonly IReviewTracker _reviewTracker;
     private readonly IConfiguration _configuration;
     private readonly ILogger<WebhookController> _logger;
 
     public WebhookController(
         ReviewOrchestrator orchestrator,
+        IReviewTracker reviewTracker,
         IConfiguration configuration,
         ILogger<WebhookController> logger)
     {
         _orchestrator = orchestrator;
+        _reviewTracker = reviewTracker;
         _configuration = configuration;
         _logger = logger;
     }
@@ -42,12 +46,22 @@ public class WebhookController : ControllerBase
         var owner = payload.Repository?.Owner?.Login;
         var repo = payload.Repository?.Name;
         var prNumber = payload.Number;
+        var commitSha = payload.PullRequest?.Head?.Sha ?? "";
 
         if (string.IsNullOrEmpty(owner) || string.IsNullOrEmpty(repo))
         {
             _logger.LogWarning("Missing repository information in webhook payload");
             return BadRequest("Missing repository information");
         }
+        
+        if (_reviewTracker.HasBeenReviewed(owner, repo, prNumber, commitSha))
+        {
+            _logger.LogInformation("Already reviewed {Owner}/{Repo} PR #{PrNumber} at {Sha}",
+                owner, repo, prNumber, commitSha);
+            return Ok(new { message = "Already reviewed" });
+        }
+        
+        _reviewTracker.MarkReviewed(owner, repo, prNumber, commitSha);
 
         _logger.LogInformation("Starting review for {Owner}/{Repo} PR #{PrNumber}",
             owner, repo, prNumber);

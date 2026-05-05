@@ -40,8 +40,6 @@ public class ReviewOrchestrator
             .OrderByDescending(f => f.Severity)
             .ToList();
 
-        Console.WriteLine($"Total findings: {allFindings.Count}");
-
         var summary = await _summarizer.SummarizeAsync(allFindings);
 
         await _gitHubService.PostReviewCommentAsync(owner, repo, pullRequestNumber, summary);

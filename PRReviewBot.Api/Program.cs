@@ -21,6 +21,7 @@ builder.Services.AddSingleton(kernel);
 
 //Services
 builder.Services.AddSingleton<ILlmService, LlmService>();
+builder.Services.AddSingleton<IReviewTracker, ReviewTracker>();
 builder.Services.AddSingleton<IGitHubService>(sp =>
     new GitHubService(builder.Configuration["GitHub:Token"]
                       ?? throw new InvalidOperationException("GitHub:Token is required")));
@@ -54,3 +55,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
+
+public partial class Program { }

@@ -9,4 +9,7 @@ public class PullRequestInfo
 
     [JsonPropertyName("user")]
     public UserInfo? User { get; set; }
+    
+    [JsonPropertyName("head")]
+    public HeadInfo? Head { get; set; }
 }
