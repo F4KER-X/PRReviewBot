@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Solution Items/" />
+  <Project Path="PRReviewBot.Api/PRReviewBot.Api.csproj" />
+  <Project Path="PRReviewBot.Core/PRReviewBot.Core.csproj" />
+  <Project Path="PRReviewBot.Tests/PRReviewBot.Tests.csproj" />
+</Solution>
